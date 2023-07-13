@@ -8,7 +8,6 @@ while True:
     user_folder = Path(input(r'Input directory: '))
     
     if user_folder.is_dir():
-        print(user_folder)
         break
     else:
         print("Your input is not a correct directory. Try again.")

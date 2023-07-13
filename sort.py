@@ -15,7 +15,7 @@ while True:
 
 
 
-allFilesList = list()
+all_files_list = list()
 
 filters = { 
             'image'   : ['JPEG', 'PNG', 'JPG', 'SVG'],
@@ -189,8 +189,8 @@ def rename_all_files_in_all_folders():
 def run():
     
     create_folder(dest_folders)
-    allFilesList = get_list_of_files(user_folder) 
-    sortFile(allFilesList)
+    all_files_list = get_list_of_files(user_folder) 
+    sortFile(all_files_list)
     for el in create_list_of_sorted_files(dest_folders):
         print(el)
     print(get_list_unknown_ext())

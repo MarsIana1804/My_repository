@@ -3,16 +3,6 @@ from pathlib import Path
 import shutil
 import re
 
-while True:
-
-    user_folder = Path(input(r'Input directory: '))
-    
-    if user_folder.is_dir():
-        break
-    else:
-        print("Your input is not a correct directory. Try again.")
-        
-
 
 
 all_files_list = list()
@@ -20,25 +10,39 @@ all_files_list = list()
 filters = { 
             'image'   : ['JPEG', 'PNG', 'JPG', 'SVG'],
             'video'   : ['AVI', 'MP4', 'MOV', 'MKV'],
-            'document': ['DOC', 'DOCX', 'TXT', 'PDF', 'XLSX', 'PPTX'],
+            'docs': ['DOC', 'DOCX', 'TXT', 'PDF', 'XLSX', 'PPTX'],
             'music'   : ['MP3', 'OGG', 'WAV', 'AMR'],
-            'archive' : ['ZIP', 'GZ', 'TAR']
-        
-            
+            'archive' : ['ZIP', 'GZ', 'TAR']  
           }
 
-dest_folders = {
-                'image'    : str(user_folder) + '/sort/image/',
-                'video'    : str(user_folder) + '/sort/video/',
-                'docs' : str(user_folder) + '/sort/docs/',
-                'music'    : str(user_folder) + '/sort/music/',
-                'archive'  : str(user_folder) + '/sort/archive/',
-                'unknown'  : str(user_folder) + '/sort/unknown/'
-             }
+
+
+def create_directory():
+
+    while True:
+
+        user_folder = Path(input(r'Input directory: '))
+        
+        if user_folder.is_dir():
+
+            a = re.findall("/", str(user_folder))
+            if len(a) >= 3:
+                print(user_folder)
+                break
+        else:
+            print("Your input is not a correct directory. Try again.")
+        
+            
+    
+    return user_folder
+
 
 def get_list_of_files(dir_name):
+
     list_of_files = os.listdir(dir_name)
+    
     allFiles = list()
+
 
     for entry in list_of_files:
         fullPath = os.path.join(dir_name, entry)
@@ -49,8 +53,10 @@ def get_list_of_files(dir_name):
 
     return allFiles
 
-def create_folder(destFol):
-    for df_k, df_v in dest_folders.items():
+
+def create_folder(folders_dictionary):
+
+    for df_k, df_v in folders_dictionary.items():
         if not os.path.exists(df_v):
             os.makedirs(df_v, exist_ok=True)
             print(f"Folder created {df_v}")
@@ -60,23 +66,25 @@ def create_folder(destFol):
 
 
 def check_extension(file_):
+
     for key_f, val_f in filters.items():
         for v in val_f:
             if file_.upper().find('.' + v) > 0:
                 
                 return key_f
-            else:
-                return "unknown"
+            
+    return "unknown"
 
 
 
-
-music_files = []
-def sortFile(files_):
+def sortFile(files_, folders_dictionary):
+    
     for f in files_:
+
         ext = ''
         ext = check_extension(f)
-        for type, dest_folder in dest_folders.items():
+
+        for type, dest_folder in folders_dictionary.items():
             if type == ext:
                 # what to do with exisiting file - the same name
                 dest_path = dest_folder + '/' + f.split('/')[-1] 
@@ -84,14 +92,15 @@ def sortFile(files_):
                 print(f, dest_path) # + r'\' + f.split())
                 shutil.move(f, dest_path)
             else:
-                dest_path = dest_folders['unknown'] + '/' + f.split('/')[-1] 
+                dest_path = folders_dictionary['unknown'] + '/' + f.split('/')[-1] 
 
 
 
-list_of_sorted_files = []
+def create_list_of_sorted_files(folders_dictionary):
+    
+    list_of_sorted_files = []
 
-def create_list_of_sorted_files(dest_fold):
-    for dk, dv in dest_fold.items():
+    for dk, dv in folders_dictionary.items():
         for a in get_list_of_files(dv):
             #print(a)
             list_of_sorted_files.append(a)
@@ -101,11 +110,11 @@ def create_list_of_sorted_files(dest_fold):
 
 
 
+def get_list_of_ext(folders_dictionary):
 
-def get_list_of_ext():
     list_extensions = []
    
-    for key_, val in dest_folders.items():
+    for key_, val in folders_dictionary.items():
         if key_ != "unknown":
             
             list_files = (get_list_of_files(val))
@@ -118,11 +127,10 @@ def get_list_of_ext():
                 
 
 
-
-def get_list_unknown_ext():
+def get_list_unknown_ext(folders_dictionary):
    
     list_unknown_ext = []
-    for key_, val in dest_folders.items():
+    for key_, val in folders_dictionary.items():
         if key_ == "unknown":
             list_files = (get_list_of_files(val))
         
@@ -134,28 +142,25 @@ def get_list_unknown_ext():
     return list(set(list_unknown_ext))   
 
 
-CYRILLIC = "абвгдеёжзийклмнопрстуфхцчшщъыьэюяєіїґ"
-LATIN = ("a", "b", "v", "g", "d", "e", "e", "j", "z", "i", "j", "k", "l", "m", "n", "o", "p", "r", "s", "t", "u",
-               "f", "h", "ts", "ch", "sh", "sch", "", "y", "", "e", "yu", "ya", "je", "i", "ji", "g")
-
-TRANS = {}
-
-for c, l in zip(CYRILLIC, LATIN):
-    
-    TRANS[ord(c)] = l
-    #TRANS.update({ord(CYRILLIC_SYMBOLS[i]):LATIN[i]})
-    TRANS[ord(c.upper())] = l.upper()
-
-    
-
 
 def normalize(name: str)-> str:
 
-    translated = name.translate(TRANS)
-    translated = re.sub(r'\W','_', translated)
+    CYRILLIC = "абвгдеёжзийклмнопрстуфхцчшщъыьэюяєіїґ"
+    LATIN = ("a", "b", "v", "g", "d", "e", "e", "j", "z", "i", "j", "k", "l", "m", "n", "o", "p", "r", "s", "t", "u",
+               "f", "h", "ts", "ch", "sh", "sch", "", "y", "", "e", "yu", "ya", "je", "i", "ji", "g")
+
+    TRANS = {}
+
+    for c, l in zip(CYRILLIC, LATIN):
+    
+        TRANS[ord(c)] = l
+        #TRANS.update({ord(CYRILLIC_SYMBOLS[i]):LATIN[i]})
+        TRANS[ord(c.upper())] = l.upper()
+
+        translated = name.translate(TRANS)
+        translated = re.sub(r'\W','_', translated)
+    
     return translated
-
-
 
 
 
@@ -177,9 +182,9 @@ def rename_files_in_folder(folder):
 
 
 
+def rename_all_files_in_all_folders(folders_dictionary):
 
-def rename_all_files_in_all_folders():
-    for k_dest,v_dest in dest_folders.items():
+    for k_dest,v_dest in folders_dictionary.items():
         rename_files_in_folder(v_dest)
     return True 
 
@@ -187,17 +192,38 @@ def rename_all_files_in_all_folders():
 
 
 def run():
+
+    directory = create_directory()
+
+    dest_folders = {
+                'image'    : str(directory) + '/sort/image/',
+                'video'    : str(directory) + '/sort/video/',
+                'docs' : str(directory) + '/sort/docs/',
+                'music'    : str(directory) + '/sort/music/',
+                'archive'  : str(directory) + '/sort/archive/',
+                'unknown'  : str(directory) + '/sort/unknown/'
+             }
+    
     
     create_folder(dest_folders)
-    all_files_list = get_list_of_files(user_folder) 
-    sortFile(all_files_list)
-    for el in create_list_of_sorted_files(dest_folders):
-        print(el)
-    print(get_list_unknown_ext())
-    print(get_list_of_ext())
-    rename_all_files_in_all_folders()
-    return True
-    
 
+    all_files_list = get_list_of_files(directory) 
+
+    sortFile(all_files_list, dest_folders)
+
+    for el in create_list_of_sorted_files(dest_folders):
+
+        print(el)
+   
+    print(get_list_unknown_ext(dest_folders))
+
+    
+    print(get_list_of_ext(dest_folders))
+    
+    rename_all_files_in_all_folders(dest_folders)
+    
+    
 if __name__ == "__main__":
-    run()
+        
+        run()
+

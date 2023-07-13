@@ -11,7 +11,7 @@ while True:
         break
     else:
         print("Your input is not a correct directory. Try again.")
-        user_folder = Path(input(r'Input directory: ')) 
+        
 
 
 

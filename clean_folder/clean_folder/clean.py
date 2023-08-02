@@ -189,10 +189,6 @@ def rename_all_files_in_all_folders(folders_dictionary):
     return True 
 
 
-def package_installation():
-    print("Installing the package...")
-    # Add your package installation logic here
-    print("Package installed successfully!")
 
 
 def run():

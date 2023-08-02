@@ -12,7 +12,7 @@ setup(
                    "License :: OSI Approved :: MIT License",
                    "Operating System :: OS Independent"],
     packages= find_packages(),
-    entry_points={'console_scripts':['clean-folder = clean_folder.clean:package_installation']}
+    entry_points={'console_scripts':['clean-folder = clean_folder.clean:run']}
     
 
     )
